@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Smart Campus Companion</string>
+    <string name="get_started">Get Started</string>
+    <string name="college_logo">College logo</string>
+    <string name="onboarding_image">Onboarding Image</string>
+    <string name="onboarding_title">Smart Campus</string>
+    <string name="onboarding_desc">Your digital companion for college life</string>
+    <string name="app_logo">App logo</string>
+
+</resources>
