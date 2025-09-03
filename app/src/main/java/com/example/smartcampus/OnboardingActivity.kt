@@ -12,45 +12,43 @@ import android.content.Intent
 
 class OnboardingActivity : AppCompatActivity() {
 
-    private lateinit var viewPager: ViewPager2
-    private lateinit var onboardingAdapter: OnboardingAdapter
-    private lateinit var btnNext: Button
-    private lateinit var btnGetStarted: Button
+    private lateinit var adapter: OnboardingAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding)
 
-        // 1. Initialize Views
-        viewPager = findViewById(R.id.viewPager)
-        btnNext = findViewById(R.id.btnNext)
-        btnGetStarted = findViewById(R.id.btnGetStarted)
+        val items = listOf(
 
-        // 2. Setup Adapter with data
-        val onboardingItems = listOf(
             OnboardingItem(R.drawable.onb_screen_1, "Welcome to Our College", "A modern campus for your bright future."),
             OnboardingItem(R.drawable.onb_screen_2, "Stay Organized", "Get notifications and manage your calendar easily."),
             OnboardingItem(R.drawable.onb_screen_3, "Navigate with Ease", "Find your way with the interactive campus map."),
             OnboardingItem(R.drawable.onb_screen_4, "Smart Assistant", "Ask our AI bot for quick help anytime.")
         )
 
-        onboardingAdapter = OnboardingAdapter(onboardingItems) {
-            Toast.makeText(this, "Get Started Clicked!", Toast.LENGTH_SHORT).show()
-            // TODO: startActivity(Intent(this, MainActivity::class.java))
-            // finish()
+        adapter = OnboardingAdapter(items)
+
+        val viewPager = findViewById<ViewPager2>(R.id.viewPager)
+        val dots = findViewById<DotsIndicator>(R.id.dotsIndicator)
+
+        viewPager.adapter = adapter
+        dots.attachTo(viewPager)
+
+        // Next button logic
+        val btnNext = findViewById<Button>(R.id.btnNext)
+        val btnGetStarted = findViewById<Button>(R.id.btnGetStarted)
+
+        btnNext.setOnClickListener {
+            if (viewPager.currentItem + 1 < items.size) {
+                viewPager.currentItem += 1
+            } else {
+                goToMain()
+            }
         }
 
-        viewPager.adapter = onboardingAdapter
-
-        // 3. Setup Dots Indicator
-        val dotsIndicator = findViewById<DotsIndicator>(R.id.dotsIndicator)
-        dotsIndicator.attachTo(viewPager)
-
-        // 4. Page change listener to switch buttons
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                if (position == onboardingItems.lastIndex) {
+                if (position == items.lastIndex) {
                     btnNext.visibility = View.GONE
                     btnGetStarted.visibility = View.VISIBLE
                 } else {
@@ -60,15 +58,11 @@ class OnboardingActivity : AppCompatActivity() {
             }
         })
 
-        // 5. Button Clicks
-        btnNext.setOnClickListener {
-            viewPager.currentItem = viewPager.currentItem + 1
-        }
+        btnGetStarted.setOnClickListener { goToMain() }
+    }
 
-        btnGetStarted.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish() // so onboarding doesn’t come back when pressing Back
-        }
+    private fun goToMain() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }

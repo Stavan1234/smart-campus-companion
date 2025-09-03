@@ -6,5 +6,7 @@
     <string name="onboarding_title">Smart Campus</string>
     <string name="onboarding_desc">Your digital companion for college life</string>
     <string name="app_logo">App logo</string>
+    <string name="onboarding_background_image">Onboarding background image</string>
+
 
 </resources>

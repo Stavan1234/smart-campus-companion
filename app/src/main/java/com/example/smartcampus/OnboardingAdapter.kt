@@ -8,25 +8,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+
 class OnboardingAdapter(
-    private val items: List<OnboardingItem>,
-    private val onGetStartedClick: () -> Unit
+    private val items: List<OnboardingItem>
 ) : RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {
 
     inner class OnboardingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val image: ImageView = view.findViewById(R.id.imgOnboarding)
-        private val title: TextView = view.findViewById(R.id.txtTitle)
-        private val description: TextView = view.findViewById(R.id.txtDescription)
-        private val btnGetStarted: Button = view.findViewById(R.id.btnGetStarted)
+        private val imageOnboarding = view.findViewById<ImageView>(R.id.imageOnboarding)
+        private val textTitle = view.findViewById<TextView>(R.id.textTitle)
+        private val textDescription = view.findViewById<TextView>(R.id.textDescription)
 
-        fun bind(item: OnboardingItem, isLast: Boolean) {
-            image.setImageResource(item.imageRes)
-            title.text = item.title
-            description.text = item.description
-
-            // Button only visible on last page
-            btnGetStarted.visibility = if (isLast) View.VISIBLE else View.GONE
-            btnGetStarted.setOnClickListener { onGetStartedClick() }
+        fun bind(item: OnboardingItem) {
+            imageOnboarding.setImageResource(item.imageRes)
+            textTitle.text = item.title
+            textDescription.text = item.description
         }
     }
 
@@ -37,8 +32,8 @@ class OnboardingAdapter(
     }
 
     override fun onBindViewHolder(holder: OnboardingViewHolder, position: Int) {
-        holder.bind(items[position], position == items.lastIndex)
+        holder.bind(items[position])
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount() = items.size
 }

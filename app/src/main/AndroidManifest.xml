@@ -3,6 +3,7 @@
     package="com.example.smartcampus">
 
     <application
+        android:name=".SmartCampusApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,22 +12,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Smart_Campus_Campanion">
-
-        <!-- SplashActivity is launcher -->
+        <activity
+            android:name=".EventsAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".Event"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- MainActivity -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true" />
+            android:name=".OnboardingActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
-
