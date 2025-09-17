@@ -15,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import com.example.smartcampus.seed.SeedEvents
+import kotlinx.coroutines.withContext
+
 
 class LoginActivity : AppCompatActivity() {
 
@@ -52,14 +55,24 @@ class LoginActivity : AppCompatActivity() {
                 val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                 val firebaseUser = authResult.user
                 if (firebaseUser != null) {
+                    // 1. Sync user/timetable data
                     fetchAndSyncData(firebaseUser.uid)
+
+                    // 2. Seed events (runs only once, safe to leave in)
+                    withContext(Dispatchers.IO) {
+                        SeedEvents.seedEventsIfNeeded()
+                    }
+
+                    // 3. Move to Dashboard
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@LoginActivity, "Login Successful!", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
                         startActivity(intent)
                         finish()
                     }
+
                 }
+
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@LoginActivity, "Login Failed: ${e.message}", Toast.LENGTH_SHORT).show()

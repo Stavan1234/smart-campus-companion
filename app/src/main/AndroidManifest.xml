@@ -13,6 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Smart_Campus_Campanion">
         <activity
+            android:name=".AllEventsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".seed.SeedEvents"
+            android:exported="false" />
+        <activity
             android:name=".EventsAdapter"
             android:exported="false" />
         <activity

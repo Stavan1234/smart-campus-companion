@@ -169,6 +169,15 @@
                 app:spanCount="2"
                 tools:listitem="@layout/item_event_card"
                 tools:itemCount="4"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/viewAllEventsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="View All"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -18,6 +18,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import android.content.Intent
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -33,6 +34,11 @@ class DashboardActivity : AppCompatActivity() {
 
         setupEventsRecyclerView()
         loadDashboardData()
+
+        binding.viewAllEventsButton.setOnClickListener {
+            val intent = Intent(this, AllEventsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun setupEventsRecyclerView() {
