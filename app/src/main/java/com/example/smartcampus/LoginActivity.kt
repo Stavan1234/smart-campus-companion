@@ -1,23 +1,23 @@
-package com.example.smartcampus // Make sure this package name is correct
+package com.example.smartcampus
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
+import android.view.View
 import android.widget.Toast
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.smartcampus.TimetableEntry
-import com.example.smartcampus.UserProfile
 import com.example.smartcampus.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.smartcampus.seed.SeedEvents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import com.example.smartcampus.seed.SeedEvents
-import kotlinx.coroutines.withContext
-
 
 class LoginActivity : AppCompatActivity() {
 
@@ -37,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
             loginUser()
         }
         binding.btnGoogle.setOnClickListener {
-            loginUser()
+            Toast.makeText(this, "Google Sign-In coming soon!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -50,70 +50,83 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+        showLoading(true)
+
         lifecycleScope.launch {
             try {
                 val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                 val firebaseUser = authResult.user
                 if (firebaseUser != null) {
-                    // 1. Sync user/timetable data
                     fetchAndSyncData(firebaseUser.uid)
+                    withContext(Dispatchers.IO) { SeedEvents.seedEventsIfNeeded() }
+                    scheduleBackgroundWorkers()
 
-                    // 2. Seed events (runs only once, safe to leave in)
-                    withContext(Dispatchers.IO) {
-                        SeedEvents.seedEventsIfNeeded()
-                    }
-
-                    // 3. Move to Dashboard
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@LoginActivity, "Login Successful!", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
-                        startActivity(intent)
+                        startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
                         finish()
                     }
-
                 }
-
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    showLoading(false)
                     Toast.makeText(this@LoginActivity, "Login Failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
+    // In LoginActivity.kt's scheduleBackgroundWorkers function...
+
+    private fun scheduleBackgroundWorkers() {
+        val workManager = WorkManager.getInstance(applicationContext)
+
+        val classReminderRequest = PeriodicWorkRequestBuilder<ClassReminderWorker>(15, TimeUnit.MINUTES).build()
+        workManager.enqueue(classReminderRequest)
+
+        // --- CHANGE 1 HOUR TO 15 MINUTES FOR TESTING ---
+        val genericReminderRequest = PeriodicWorkRequestBuilder<ReminderWorker>(15, TimeUnit.MINUTES)
+            .build()
+        workManager.enqueue(genericReminderRequest)
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.loadingProgressBar.visibility = View.VISIBLE
+            binding.btnLogin.isEnabled = false
+            binding.btnGoogle.isEnabled = false
+        } else {
+            binding.loadingProgressBar.visibility = View.GONE
+            binding.btnLogin.isEnabled = true
+            binding.btnGoogle.isEnabled = true
+        }
+    }
+
+
     private suspend fun fetchAndSyncData(uid: String) {
-        // This function runs on a background thread because of Dispatchers.IO
         withContext(Dispatchers.IO) {
             Log.d("SYNC_DEBUG", "Starting data fetch for UID: $uid")
             try {
-                // Get access to our local database DAOs
-                val userDao = SmartCampusApp.database.userDao()
-                val timetableDao = SmartCampusApp.database.timetableDao()
+                // --- THIS IS THE FIX ---
+                val userDao = SmartCampusApp.getDatabase().userDao()
+                val timetableDao = SmartCampusApp.getDatabase().timetableDao()
+                // -----------------------
 
-                // Fetch User Profile from Firestore
-                Log.d("SYNC_DEBUG", "Fetching user document from 'users' collection with ID: $uid")
                 val userDocument = firestore.collection("users").document(uid).get().await()
 
                 if (userDocument.exists()) {
-                    Log.d("SYNC_DEBUG", "SUCCESS: User document found!")
                     val userName = userDocument.getString("userName") ?: "Student"
                     val photoUrl = userDocument.getString("photoUrl") ?: ""
                     val userClass = userDocument.getString("userClass") ?: ""
-                    Log.d("SYNC_DEBUG", "User Parsed: Name='${userName}', Class='${userClass}'")
-
                     val userProfile = UserProfile(userName = userName, photoUrl = photoUrl)
                     userDao.insertOrUpdateUser(userProfile)
-                    Log.d("SYNC_DEBUG", "SUCCESS: User profile saved to Room.")
-
 
                     if (userClass.isNotEmpty()) {
-                        Log.d("SYNC_DEBUG", "Fetching timetable from 'timetables' collection with ID: $userClass")
                         val timetableDocument = firestore.collection("timetables").document(userClass).get().await()
-
                         if (timetableDocument.exists()) {
-                            Log.d("SYNC_DEBUG", "SUCCESS: Timetable document found!")
-                            val scheduleList = timetableDocument.get("schedule") as? List<HashMap<String, String>> ?: emptyList()
-                            Log.d("SYNC_DEBUG", "Timetable Parsed: Found ${scheduleList.size} entries.")
+                            val scheduleList = timetableDocument.get("schedule").let {
+                                if (it is List<*>) it.filterIsInstance<HashMap<String, String>>() else emptyList()
+                            }
 
                             val timetableEntries = scheduleList.map {
                                 TimetableEntry(
@@ -123,20 +136,12 @@ class LoginActivity : AppCompatActivity() {
                                     dayOfWeek = it["day"] ?: ""
                                 )
                             }
-
                             timetableDao.clearTable()
                             timetableDao.insertAll(timetableEntries)
-                            Log.d("SYNC_DEBUG", "SUCCESS: Timetable saved to Room.")
-                        } else {
-                            Log.e("SYNC_DEBUG", "ERROR: Timetable document '$userClass' does not exist!")
                         }
                     }
-                } else {
-                    Log.e("SYNC_DEBUG", "ERROR: User document with ID '$uid' does not exist in 'users' collection!")
                 }
-
             } catch (e: Exception) {
-                // This will catch any other errors during the process
                 Log.e("SYNC_DEBUG", "An error occurred during sync: ${e.message}", e)
             }
         }

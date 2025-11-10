@@ -1,12 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bluePrimary">#1976D2</color>
-    <color name="bgLightGray">#F5F5F5</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="gray">#999999</color>
-    <color name="darkGray">#666666</color>
-    <color name="blue">#007BFF</color>
-    <color name="light_gray">#F5F5F5</color>
-
-
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Primary Colors -->
+    <color name="primary_color">#FF2196F3</color>
+    <color name="primary_dark">#FF1976D2</color>
+    <color name="primary_light">#FFBBDEFB</color>
+    
+    <!-- Background Colors -->
+    <color name="light_gray">#FFF5F5F5</color>
+    <color name="background_light">#FFF8F9FA</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+    
+    <!-- Card Colors -->
+    <color name="card_stroke">#FFE0E0E0</color>
+    
+    <!-- Button Colors -->
+    <color name="reminder_button_background">#FFF3E5F5</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#FF4CAF50</color>
+    <color name="warning">#FFFF9800</color>
+    <color name="error">#FFF44336</color>
+    
+    <!-- Additional Colors for Onboarding -->
+    <color name="gray">#FF9E9E9E</color>
+    <color name="darkGray">#FF424242</color>
 </resources>

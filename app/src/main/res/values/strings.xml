@@ -8,5 +8,8 @@
     <string name="app_logo">App logo</string>
     <string name="onboarding_background_image">Onboarding background image</string>
 
-
+    <string name="no_classes_today">No classes scheduled for today.</string>
+    <string name="location_permission_denied">Location permission denied.</string>
+    <string name="marker_selected">%s selected</string>
+    <string name="schedule_item_details">%1$s • %2$s</string>
 </resources>

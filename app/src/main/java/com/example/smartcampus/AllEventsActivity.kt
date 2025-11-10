@@ -2,7 +2,6 @@ package com.example.smartcampus
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.smartcampus.databinding.ActivityAllEventsBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -18,20 +17,21 @@ class AllEventsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firestore = FirebaseFirestore.getInstance()
-        setupRecyclerView()
+
         fetchAllEvents()
     }
 
-    private fun setupRecyclerView() {
-        binding.allEventsRecyclerView.layoutManager = LinearLayoutManager(this)
-    }
 
     private fun fetchAllEvents() {
         firestore.collection("events")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { snapshot ->
-                val eventList = snapshot.toObjects(Event::class.java)
+                val eventList = snapshot.documents.mapNotNull { document ->
+                    document.toObject(Event::class.java)?.apply {
+                        id = document.id
+                    }
+                }
                 binding.allEventsRecyclerView.adapter = EventsAdapter(eventList)
             }
             .addOnFailureListener { e ->

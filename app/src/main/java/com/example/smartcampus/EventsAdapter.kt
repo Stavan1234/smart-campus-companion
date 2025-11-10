@@ -1,5 +1,6 @@
 package com.example.smartcampus
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -24,9 +25,20 @@ class EventsAdapter(private val events: List<Event>) : RecyclerView.Adapter<Even
         Glide.with(holder.itemView.context)
             .load(event.imageUrl)
             .into(holder.binding.eventImageView)
+
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, EventDetailActivity::class.java).apply {
+                // Pass the unique document ID to the detail activity
+                putExtra("EVENT_ID", event.id)
+            }
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int {
         return events.size
     }
 }
+
+

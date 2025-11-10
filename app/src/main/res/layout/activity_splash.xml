@@ -1,42 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootSplash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/cropped_cam"
+    android:background="@drawable/splash_background"
     tools:context=".ui.splash.SplashActivity">
 
-    <!-- Centered College Logo -->
-
-    <!-- App Name -->
-
-    <!-- Get Started button -->
+    <!-- Animated Background Particles -->
+    <ImageView
+        android:id="@+id/particle1"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="200dp"
+        android:src="@drawable/ic_particle"
+        android:alpha="0.6"
+        android:contentDescription="Background particle" />
 
     <ImageView
-        android:id="@+id/imgLogo"
-        android:layout_width="417dp"
-        android:layout_height="444dp"
-        android:contentDescription="@string/college_logo"
-        android:scaleType="fitCenter"
-        android:src="@drawable/logo"
-        tools:layout_editor_absoluteX="-4dp"
-        tools:layout_editor_absoluteY="138dp" />
+        android:id="@+id/particle2"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginTop="300dp"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/ic_particle"
+        android:alpha="0.4"
+        android:contentDescription="Background particle" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnGetStarted"
-        android:layout_width="0dp"
+    <ImageView
+        android:id="@+id/particle3"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:src="@drawable/ic_particle"
+        android:alpha="0.5"
+        android:contentDescription="Background particle" />
+
+    <!-- Main Content Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <!-- App Logo with Animation -->
+        <ImageView
+            android:id="@+id/logoImageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/logo"
+            android:contentDescription="Smart Campus Logo"
+            android:scaleType="centerInside" />
+
+        <!-- App Name with Animation -->
+        <TextView
+            android:id="@+id/appNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Smart Campus"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-light" />
+
+        <!-- Tagline with Animation -->
+        <TextView
+            android:id="@+id/taglineTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Your Intelligent Campus Companion"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:alpha="0.9"
+            android:fontFamily="sans-serif-light" />
+
+        <!-- Loading Indicator -->
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="48dp"
+            android:indeterminateTint="@color/white"
+            android:visibility="visible" />
+
+        <!-- Loading Text -->
+        <TextView
+            android:id="@+id/loadingTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Loading..."
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:alpha="0.8"
+            android:fontFamily="sans-serif-light" />
+
+    </LinearLayout>
+
+    <!-- Bottom Branding -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="@color/bluePrimary"
-        android:text="@string/get_started"
-        android:textColor="@color/white"
-        app:cornerRadius="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Powered by Smart Technology"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:alpha="0.7"
+            android:fontFamily="sans-serif-light" />
+
+    </LinearLayout>
+
+</RelativeLayout>
