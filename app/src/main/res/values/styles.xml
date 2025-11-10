@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen Theme -->
+    <style name="Theme.Splash" parent="Theme.Smart_Campus_Campanion">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@style/SplashAnimation</item>
+    </style>
+
+    <!-- Splash Screen Animation -->
+    <style name="SplashAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/logo_scale_in</item>
+        <item name="android:windowExitAnimation">@anim/fade_in</item>
+    </style>
+
+    <!-- Custom Button Styles -->
+    <style name="Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/primary_color</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <style name="Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/primary_color</item>
+        <item name="android:textColor">@color/primary_color</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+</resources>
