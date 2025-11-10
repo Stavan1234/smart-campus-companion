@@ -18,6 +18,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- SECTION 1: HEADER -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -57,12 +58,13 @@
                     android:id="@+id/userNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Faheem Madhia"
+                    android:text="Student"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:textSize="20sp"
                     app:layout_constraintTop_toBottomOf="@id/welcomeTextView"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="Faheem Madhia" />
 
                 <ImageView
                     android:id="@+id/avatarImageView"
@@ -74,6 +76,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- SECTION 2: SMART CARDS -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,6 +130,7 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
+            <!-- SECTION 3: SCHEDULE -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/timetableCard"
                 android:layout_width="match_parent"
@@ -179,52 +183,22 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- SECTION 4: CAMPUS UTILITIES -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Campus Events &amp; Notices"
+                android:text="Campus Utilities"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/eventsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
-                tools:listitem="@layout/item_event_card"
-                tools:itemCount="4"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/viewAllEventsButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="View All"
-                style="@style/Widget.MaterialComponents.Button.TextButton" />
-
-            <!-- New Interactive Bottom Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quick Access"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp"/>
-
-            <!-- Contact & Support Card -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/contactSupportCard"
+                android:id="@+id/quickActionsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
                 app:cardElevation="4dp"
                 app:strokeColor="@color/card_stroke"
                 app:strokeWidth="1dp">
@@ -232,140 +206,69 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:gravity="center_vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Action 1: Timetable -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnActionTimetable"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
+                        android:layout_weight="1"
+                        android:text="Timetable"
+                        app:icon="@drawable/ic_schedule_empty"
+                        app:iconGravity="textTop"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textColor="@color/text_primary"/>
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_contact_support"
-                            android:layout_marginEnd="12dp"
-                            app:tint="@color/primary_color"
-                            android:contentDescription="Contact Support" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Contact &amp; Support"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black" />
-
-                    </LinearLayout>
-
-                    <!-- Contact Info -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Action 2: Canteen -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnActionCanteen"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="12dp">
+                        android:layout_weight="1"
+                        android:text="Canteen"
+                        app:icon="@drawable/fast_food"
+                        app:iconTint="@color/primary_color"
+                        app:iconGravity="textTop"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textColor="@color/text_primary"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="8dp">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_phone"
-                                android:layout_marginEnd="8dp"
-                                app:tint="@color/primary_color"
-                                android:contentDescription="Phone" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Helpline: +91 98765 43210"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="8dp">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_email"
-                                android:layout_marginEnd="8dp"
-                                app:tint="@color/primary_color"
-                                android:contentDescription="Email" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="support@college.edu"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <!-- Staff Info -->
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Action 3: Campus Map -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnActionMap"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Key Staff"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_weight="1"
+                        android:text="Map"
+                        app:icon="@drawable/ic_location"
+                        app:iconGravity="textTop"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textColor="@color/text_primary"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Action 4: Chatbot -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnActionChatbot"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Dr. Sarah Johnson - Dean"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Prof. Michael Chen - Academic Head"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ms. Emily Davis - Student Affairs"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"/>
-
-                    </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="Chatbot"
+                        app:icon="@drawable/ic_chat_bubble"
+                        app:iconGravity="textTop"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textColor="@color/text_primary"/>
 
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Canteen Menu Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/canteenMenuCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
+                android:layout_marginBottom="24dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardElevation="4dp"
@@ -388,7 +291,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_canteen"
+                            android:src="@drawable/fast_food"
                             android:layout_marginEnd="12dp"
                             app:tint="@color/primary_color"
                             android:contentDescription="Canteen" />
@@ -414,35 +317,106 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Explore delicious food options"
+                        android:text="Explore delicious food options &amp; ratings"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="8dp"/>
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECTION 5: EVENTS & SUPPORT -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Campus Events &amp; Support"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/eventsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2"
+                tools:listitem="@layout/item_event_card"
+                tools:itemCount="4"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/viewAllEventsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="View All"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+            <!-- This is your Contact & Support Card, now fixed and in a logical place -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/contactSupportCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_phone"
+                            android:layout_marginEnd="12dp"
+                            app:tint="@color/primary_color"
+                            android:contentDescription="Contact Support" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="30+ items available"
-                            android:textColor="@color/primary_color"
-                            android:textSize="12sp"
-                            android:textStyle="bold"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View Menu →"
-                            android:textColor="@color/primary_color"
-                            android:textSize="12sp"
-                            android:textStyle="bold"/>
+                            android:text="Contact &amp; Support"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black" />
 
                     </LinearLayout>
+
+                    <!-- Contact Info -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Helpline: +91 98765 43210"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="8dp"
+                        android:drawablePadding="8dp"
+                        app:drawableStartCompat="@drawable/ic_phone"
+                        app:drawableTint="@color/primary_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="support@college.edu"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:drawablePadding="8dp"
+                        app:drawableStartCompat="@drawable/ic_notification"
+                        app:drawableTint="@color/primary_color"/>
 
                 </LinearLayout>
 

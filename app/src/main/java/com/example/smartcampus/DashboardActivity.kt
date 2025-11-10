@@ -39,35 +39,35 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
 
     // *** 1. THIS IS THE NEW "DISTANCE MATRIX" (THE MODEL'S KNOWLEDGE) ***
-    // It now uses your REAL room names from Firebase.
-    private val locationDistanceMap = mapOf(
+    // Use Pair<String,String> -> Int for distances (meters)
+    private val locationDistanceMap: Map<Pair<String, String>, Int> = mapOf(
         // AX 4th Floor
-        "AX411" to "AX408" to 30, // 30 meters (down the hall)
+        Pair("AX411", "AX408") to 30, // 30 meters (down the hall)
 
         // AX 4th Floor to 5th Floor
-        "AX411" to "AX510" to 80, // 80 meters (up one floor)
-        "AX408" to "AX510" to 90, // 90 meters (up one floor, opposite end)
+        Pair("AX411", "AX510") to 80, // 80 meters (up one floor)
+        Pair("AX408", "AX510") to 90, // 90 meters (up one floor, opposite end)
 
         // AX Block to Canteen (Assuming Canteen is Ground Floor)
-        "AX411" to "CANTEEN" to 200,
-        "AX408" to "CANTEEN" to 210,
-        "AX510" to "CANTEEN" to 280,
+        Pair("AX411", "CANTEEN") to 200,
+        Pair("AX408", "CANTEEN") to 210,
+        Pair("AX510", "CANTEEN") to 280,
 
         // AX Block to Library
-        "AX411" to "LIBRARY" to 150,
-        "AX408" to "LIBRARY" to 160,
-        "AX510" to "LIBRARY" to 230,
+        Pair("AX411", "LIBRARY") to 150,
+        Pair("AX408", "LIBRARY") to 160,
+        Pair("AX510", "LIBRARY") to 230,
 
         // Library to Canteen
-        "LIBRARY" to "CANTEEN" to 100
+        Pair("LIBRARY", "CANTEEN") to 100
     )
 
     // Helper function to safely get the distance
     private fun getDistance(loc1: String, loc2: String): Int {
         if (loc1 == loc2) return 0
         // Check both "A to B" and "B to A"
-        return locationDistanceMap[loc1 to loc2]
-            ?: locationDistanceMap[loc2 to loc1]
+        return locationDistanceMap[Pair(loc1, loc2)]
+            ?: locationDistanceMap[Pair(loc2, loc1)]
             ?: 50 // Default to 50m if location is unknown
     }
 
@@ -95,6 +95,24 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        // --- NEW: Listeners for Quick Action Card ---
+        binding.btnActionTimetable.setOnClickListener {
+            startActivity(Intent(this, TimetableActivity::class.java))
+        }
+
+        binding.btnActionCanteen.setOnClickListener {
+            startActivity(Intent(this, CanteenMenuActivity::class.java))
+        }
+
+        binding.btnActionMap.setOnClickListener {
+            startActivity(Intent(this, MapActivity::class.java))
+        }
+
+        binding.btnActionChatbot.setOnClickListener {
+            startActivity(Intent(this, ChatbotActivity::class.java))
+        }
+        // --- End of new listeners ---
+
         binding.mapCard.setOnClickListener {
             startActivity(Intent(this, MapActivity::class.java))
         }
@@ -115,11 +133,7 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, TimetableActivity::class.java))
         }
 
-        binding.contactSupportCard.setOnClickListener {
-            // Add haptic feedback for better UX
-            binding.contactSupportCard.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
-            Toast.makeText(this, "Contact info displayed above", Toast.LENGTH_SHORT).show()
-        }
+        // NOTE: contactSupportCard listener removed as requested
 
         binding.canteenMenuCard.setOnClickListener {
             startActivity(Intent(this, CanteenMenuActivity::class.java))
@@ -339,7 +353,6 @@ class DashboardActivity : AppCompatActivity() {
             binding.aiAlertCard.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white))
         }
     }
-
 
     private fun askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

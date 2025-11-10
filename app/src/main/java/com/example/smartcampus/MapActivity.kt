@@ -20,6 +20,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
+// *** NEW: IMPORTS ***
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -31,25 +34,37 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private var currentMarker: Marker? = null
     private val TAG = "SMART_CAMPUS_DIAGNOSIS"
 
+    // *** NEW: LOCATION CLIENT ***
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // *** NEW: INITIALIZE CLIENT ***
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.fullMapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        // *** NEW: FAB CLICK LISTENER ***
+        binding.fabMyLocation.setOnClickListener {
+            zoomToCurrentLocation()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         addMapOverlay()
         setupSearchView()
-        fetchLocationsAndDisplay() // This will now handle the initial search
+        fetchLocationsAndDisplay()
         enableMyLocation()
     }
 
     private fun setupSearchView() {
+        // ... (This function is unchanged)
         binding.searchView.isSubmitButtonEnabled = true
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -69,6 +84,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun searchForLocation(searchText: String) {
+        // ... (This function is unchanged)
         val cleanedSearchText = searchText.trim()
         val matchedLocation = allLocations.find { it.name.contains(cleanedSearchText, ignoreCase = true) }
 
@@ -94,6 +110,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addMapOverlay() {
+        // ... (This function is unchanged)
         val southwestBound = LatLng(19.075304, 72.990539)
         val northeastBound = LatLng(19.077231, 72.992517)
         val overlayBounds = LatLngBounds(southwestBound, northeastBound)
@@ -114,6 +131,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun fetchLocationsAndDisplay() {
+        // ... (This function is unchanged)
         firestore.collection("location")
             .get()
             .addOnSuccessListener { documents ->
@@ -135,15 +153,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                     )
                 }
 
-                // --- THIS IS THE FIX ---
-                // After locations are loaded, check if there's a pending search from the chatbot
                 intent.getStringExtra("SEARCH_QUERY")?.let { searchQuery ->
-                    // Set the query text in the bar and submit it
                     binding.searchView.setQuery(searchQuery, true)
-                    // Remove the extra so it doesn't run again on configuration change
                     intent.removeExtra("SEARCH_QUERY")
                 }
-                // --------------------
 
             }
             .addOnFailureListener { exception ->
@@ -160,11 +173,31 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // *** NEW: FUNCTION TO ZOOM TO CURRENT LOCATION ***
+    private fun zoomToCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Location permission is not granted.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Get the last known location (fastest way)
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)) // Zoom in close
+                } else {
+                    Toast.makeText(this, "Cannot get current location. Is GPS on?", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == locationPermissionRequestCode) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 enableMyLocation()
+                zoomToCurrentLocation() // Zoom to location right after permission is granted
             } else {
                 Toast.makeText(this, getString(R.string.location_permission_denied), Toast.LENGTH_SHORT).show()
             }

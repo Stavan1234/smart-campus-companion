@@ -30,6 +30,12 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    kapt{
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
 }
 
 dependencies {
@@ -41,6 +47,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
     implementation(libs.androidx.activity)
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
