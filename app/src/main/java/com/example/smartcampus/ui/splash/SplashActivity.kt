@@ -4,116 +4,151 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.OvershootInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.smartcampus.DashboardActivity
 import com.example.smartcampus.LoginActivity
 import com.example.smartcampus.OnboardingActivity
 import com.example.smartcampus.R
 import com.example.smartcampus.databinding.ActivitySplashBinding
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
+
+    // Fancy loading messages
+    private val loadingMessages = listOf(
+        "Loading resources...",
+        "Connecting to campus network...",
+        "Initializing smart services...",
+        "Waking up the AI bot...",
+        "Almost there..."
+    )
+
+    // Config
+    private val totalSplashMs = 5000L
+    private val loadingMessageIntervalMs = 900L
+
+    // coroutine job for updating text (will be cancelled automatically on destroy)
+    private var textJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Start all animations
         startSplashAnimations()
+        startLoadingTextLoop()
+        scheduleNavigationAfterDelay()
+    }
 
-        // Navigate after delay
-        navigateAfterDelay()
+    private fun startLoadingTextLoop() {
+        // Start a coroutine that cycles through messages until cancelled
+        textJob = lifecycleScope.launch {
+            var idx = 0
+            // Loop frequently until the coroutine is cancelled
+            while (isActive) {
+                binding.loadingTextView.text = loadingMessages[idx % loadingMessages.size]
+                idx++
+                delay(loadingMessageIntervalMs)
+            }
+        }
     }
 
     private fun startSplashAnimations() {
-        // Logo animation with scale and fade
+        // Entry animations (XML)
         val logoScaleIn = AnimationUtils.loadAnimation(this, R.anim.logo_scale_in)
         binding.logoImageView.startAnimation(logoScaleIn)
 
-        // App name slide up animation
         val textSlideUp = AnimationUtils.loadAnimation(this, R.anim.text_slide_up)
         binding.appNameTextView.startAnimation(textSlideUp)
 
-        // Tagline animation with slight delay
-        Handler(Looper.getMainLooper()).postDelayed({
-            val taglineSlideUp = AnimationUtils.loadAnimation(this, R.anim.text_slide_up)
-            binding.taglineTextView.startAnimation(taglineSlideUp)
+        // Stagger tagline slightly
+        binding.taglineTextView.postDelayed({
+            binding.taglineTextView.startAnimation(textSlideUp)
         }, 200)
 
-        // Loading indicator rotation
+        // Loading rotate
         val loadingRotate = AnimationUtils.loadAnimation(this, R.anim.loading_rotate)
         binding.loadingProgressBar.startAnimation(loadingRotate)
 
-        // Background particles floating animation
+        // Particles: stagger their start times (use posts on the view so we can cancel if needed)
         val particleFloat = AnimationUtils.loadAnimation(this, R.anim.particle_float)
         binding.particle1.startAnimation(particleFloat)
-        
-        Handler(Looper.getMainLooper()).postDelayed({
-            binding.particle2.startAnimation(particleFloat)
-        }, 500)
-        
-        Handler(Looper.getMainLooper()).postDelayed({
-            binding.particle3.startAnimation(particleFloat)
-        }, 1000)
+        binding.particle2.postDelayed({ binding.particle2.startAnimation(particleFloat) }, 500)
+        binding.particle3.postDelayed({ binding.particle3.startAnimation(particleFloat) }, 1000)
 
-        // Background fade animation
+        // Background fade
         val backgroundFade = AnimationUtils.loadAnimation(this, R.anim.background_fade)
         binding.root.startAnimation(backgroundFade)
     }
 
-    private fun navigateAfterDelay() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            // Check if user has completed onboarding
+    private fun scheduleNavigationAfterDelay() {
+        // Use lifecycleScope to wait then animate exit and navigate
+        lifecycleScope.launch {
+            delay(totalSplashMs)
+
+            // Cancel text loop before exit animation
+            textJob?.cancel()
+
+            // Decide target activity
             val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
             val isOnboardingComplete = prefs.getBoolean("onboarding_complete", false)
-
-            // Check if a user is already logged in
             val currentUser = FirebaseAuth.getInstance().currentUser
 
-            // Decide which screen to go to
             val targetActivity = when {
-                currentUser != null -> {
-                    // If user is logged in, go straight to the Dashboard
-                    DashboardActivity::class.java
-                }
-                isOnboardingComplete -> {
-                    // If onboarding is done but not logged in, go to Login
-                    LoginActivity::class.java
-                }
-                else -> {
-                    // If it's the very first time, show Onboarding
-                    OnboardingActivity::class.java
-                }
+                currentUser != null -> DashboardActivity::class.java
+                isOnboardingComplete -> LoginActivity::class.java
+                else -> OnboardingActivity::class.java
             }
 
-            // Add exit animation before navigation
+            // Exit fade animation via AnimatorSet
             val exitAnimator = AnimatorSet().apply {
                 playTogether(
                     ObjectAnimator.ofFloat(binding.logoImageView, "alpha", 1f, 0f),
                     ObjectAnimator.ofFloat(binding.appNameTextView, "alpha", 1f, 0f),
                     ObjectAnimator.ofFloat(binding.taglineTextView, "alpha", 1f, 0f),
-                    ObjectAnimator.ofFloat(binding.loadingProgressBar, "alpha", 1f, 0f)
+                    ObjectAnimator.ofFloat(binding.loadingProgressBar, "alpha", 1f, 0f),
+                    ObjectAnimator.ofFloat(binding.loadingTextView, "alpha", 1f, 0f)
                 )
                 duration = 500
                 interpolator = DecelerateInterpolator()
             }
-            
-            exitAnimator.start()
-            
-            // Navigate after exit animation
-            Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(Intent(this, targetActivity))
-                finish()
-            }, 500)
 
-        }, 5000) // 5 second delay for full animation sequence
+            exitAnimator.start()
+
+            // Wait for exit animation to finish
+            delay(500)
+
+            // Start next screen (check finishing state)
+            if (!isFinishing) {
+                startActivity(Intent(this@SplashActivity, targetActivity))
+                finish()
+                // Optionally: overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel coroutine job explicitly (safe even if already cancelled)
+        textJob?.cancel()
+
+        // Clear animations to avoid leaks and keep views clean
+        binding.logoImageView.clearAnimation()
+        binding.appNameTextView.clearAnimation()
+        binding.taglineTextView.clearAnimation()
+        binding.loadingProgressBar.clearAnimation()
+        binding.particle1.clearAnimation()
+        binding.particle2.clearAnimation()
+        binding.particle3.clearAnimation()
+        binding.root.clearAnimation()
     }
 }
