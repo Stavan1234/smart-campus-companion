@@ -347,7 +347,7 @@ class CanteenMenuActivity : AppCompatActivity() {
     }
 
     private fun loadMenuData() {
-        val genericIcon = R.drawable.fast_food
+        val genericIcon = R.drawable.ic_fast_food
 
         val menuItems = listOf(
             MenuItem("Samosa", "₹15", "Snacks", "Crispy fried pastry with spiced potato filling", genericIcon),

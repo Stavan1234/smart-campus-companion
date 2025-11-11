@@ -1,10 +1,20 @@
+// *** ADD THIS IMPORT AT THE VERY TOP ***
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     alias(libs.plugins.google.gms.google.services)
-
     id("kotlin-parcelize")
+}
+
+// *** ADD THIS BLOCK TO READ YOUR local.properties FILE ***
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 android {
@@ -17,6 +27,11 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        // *** ADD THIS BLOCK TO CREATE THE KEY VARIABLE ***
+        // This reads the key from local.properties and makes it available to your app
+        val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
     }
 
     compileOptions {

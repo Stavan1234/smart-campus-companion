@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Calendar // <-- *** FIX: ADDED MISSING IMPORT ***
+import java.util.Calendar
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -38,37 +38,25 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
 
-    // *** 1. THIS IS THE NEW "DISTANCE MATRIX" (THE MODEL'S KNOWLEDGE) ***
-    // Use Pair<String,String> -> Int for distances (meters)
-    private val locationDistanceMap: Map<Pair<String, String>, Int> = mapOf(
-        // AX 4th Floor
-        Pair("AX411", "AX408") to 30, // 30 meters (down the hall)
-
-        // AX 4th Floor to 5th Floor
-        Pair("AX411", "AX510") to 80, // 80 meters (up one floor)
-        Pair("AX408", "AX510") to 90, // 90 meters (up one floor, opposite end)
-
-        // AX Block to Canteen (Assuming Canteen is Ground Floor)
-        Pair("AX411", "CANTEEN") to 200,
-        Pair("AX408", "CANTEEN") to 210,
-        Pair("AX510", "CANTEEN") to 280,
-
-        // AX Block to Library
-        Pair("AX411", "LIBRARY") to 150,
-        Pair("AX408", "LIBRARY") to 160,
-        Pair("AX510", "LIBRARY") to 230,
-
-        // Library to Canteen
-        Pair("LIBRARY", "CANTEEN") to 100
+    // This is our "ML Model" Knowledge Base
+    private val locationDistanceMap = mapOf(
+        "AX411" to "AX408" to 30,
+        "AX411" to "AX510" to 80,
+        "AX408" to "AX510" to 90,
+        "AX411" to "CANTEEN" to 200,
+        "AX408" to "CANTEEN" to 210,
+        "AX510" to "CANTEEN" to 280,
+        "AX411" to "LIBRARY" to 150,
+        "AX408" to "LIBRARY" to 160,
+        "AX510" to "LIBRARY" to 230,
+        "LIBRARY" to "CANTEEN" to 100
     )
 
-    // Helper function to safely get the distance
     private fun getDistance(loc1: String, loc2: String): Int {
         if (loc1 == loc2) return 0
-        // Check both "A to B" and "B to A"
-        return locationDistanceMap[Pair(loc1, loc2)]
-            ?: locationDistanceMap[Pair(loc2, loc1)]
-            ?: 50 // Default to 50m if location is unknown
+        return locationDistanceMap[loc1 to loc2]
+            ?: locationDistanceMap[loc2 to loc1]
+            ?: 50
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -87,15 +75,30 @@ class DashboardActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
 
-        setupClickListeners()
+        setupClickListeners() // This function is now updated
         setupEventsRecyclerView()
         loadDashboardData()
         startAnimations()
         askNotificationPermission()
     }
 
+    // *** THIS FUNCTION IS NOW UPDATED ***
     private fun setupClickListeners() {
-        // --- NEW: Listeners for Quick Action Card ---
+
+        // --- Main Smart Cards ---
+        binding.mapCard.setOnClickListener {
+            startActivity(Intent(this, MapActivity::class.java))
+        }
+
+        binding.timetableCard.setOnClickListener {
+            startActivity(Intent(this, TimetableActivity::class.java))
+        }
+
+        binding.viewScheduleLink.setOnClickListener {
+            startActivity(Intent(this, TimetableActivity::class.java))
+        }
+
+        // --- Quick Action Buttons ---
         binding.btnActionTimetable.setOnClickListener {
             startActivity(Intent(this, TimetableActivity::class.java))
         }
@@ -111,32 +114,25 @@ class DashboardActivity : AppCompatActivity() {
         binding.btnActionChatbot.setOnClickListener {
             startActivity(Intent(this, ChatbotActivity::class.java))
         }
-        // --- End of new listeners ---
 
-        binding.mapCard.setOnClickListener {
-            startActivity(Intent(this, MapActivity::class.java))
-        }
-
+        // --- Events ---
         binding.viewAllEventsButton.setOnClickListener {
             startActivity(Intent(this, AllEventsActivity::class.java))
         }
 
-        binding.fabChatbot.setOnClickListener {
-            startActivity(Intent(this, ChatbotActivity::class.java))
-        }
-
-        binding.timetableCard.setOnClickListener {
-            startActivity(Intent(this, TimetableActivity::class.java))
-        }
-
-        binding.viewScheduleLink.setOnClickListener {
-            startActivity(Intent(this, TimetableActivity::class.java))
-        }
-
-        // NOTE: contactSupportCard listener removed as requested
-
+        // --- Other Cards & FABs ---
         binding.canteenMenuCard.setOnClickListener {
             startActivity(Intent(this, CanteenMenuActivity::class.java))
+        }
+
+        // This card is now at the bottom, but the listener is the same
+        binding.contactSupportCard.setOnClickListener {
+            binding.contactSupportCard.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            Toast.makeText(this, "Contact info displayed", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.fabChatbot.setOnClickListener {
+            startActivity(Intent(this, ChatbotActivity::class.java))
         }
 
         binding.avatarImageView.setOnClickListener { view ->
@@ -230,128 +226,83 @@ class DashboardActivity : AppCompatActivity() {
                 binding.scheduleContainer.addView(scheduleItemBinding.root)
             }
         }
-        // This will now call our NEW, smart alert function
         checkAndDisplaySmartAlert(scheduleList)
     }
 
-    // *** 2. THIS IS THE NEW "TIME PARSER" (THE "FEATURE ENGINEERING") ***
-    // This function now correctly parses "8:45 AM - 10:45 AM".
-    /**
-     * Parses a time string like "8:45 AM - 10:45 AM" or "1:30 PM - 2:30 PM".
-     * Returns the start and end time in minutes-from-midnight.
-     * e.g., "1:30 PM - 2:30 PM" -> Pair(810, 870)
-     */
     private fun parseTimeSlot(timeSlot: String): Pair<Int, Int>? {
         return try {
-            // Input format: "h:mm a" (e.g., "8:45 AM")
             val format = SimpleDateFormat("h:mm a", Locale.getDefault())
-
             val parts = timeSlot.split("-").map { it.trim() }
-            val startTimeStr = parts[0]
-            val endTimeStr = parts[1]
+            val startDate = format.parse(parts[0])
+            val endDate = format.parse(parts[1])
 
-            val startDate = format.parse(startTimeStr)
-            val endDate = format.parse(endTimeStr)
-
-            // Convert parsed date to minutes-from-midnight
             val cal = Calendar.getInstance()
-
             cal.time = startDate
             val startTotalMinutes = (cal.get(Calendar.HOUR_OF_DAY) * 60) + cal.get(Calendar.MINUTE)
 
             cal.time = endDate
             val endTotalMinutes = (cal.get(Calendar.HOUR_OF_DAY) * 60) + cal.get(Calendar.MINUTE)
 
-            // *** FIX: Correct return type ***
             Pair(startTotalMinutes, endTotalMinutes)
         } catch (e: Exception) {
             Log.e("DashboardActivity", "Failed to parse timeSlot: $timeSlot", e)
-            null // Return null if parsing fails
+            null
         }
     }
 
-    // *** 3. THIS IS OUR "ML MODEL" ***
-    // It takes the features (time and distance) and returns a prediction.
-    /**
-     * @param timeGapInMinutes The time (in minutes) between classes.
-     * @param distanceInMeters The distance (in meters) to travel.
-     * @return A prediction string (our "classification").
-     */
     private fun getLatenessPrediction(timeGapInMinutes: Int, distanceInMeters: Int): String {
-        // Average walking speed is ~1.4 meters/second (or 84 meters/minute)
         val requiredWalkTime = distanceInMeters / 84.0
-
-        // Add 1 minute for "buffer" (getting out of class, packing up)
         val totalRequiredTime = requiredWalkTime + 1
 
         return when {
-            // RULE 1: If total required time is > available time, high risk.
             totalRequiredTime > timeGapInMinutes ->
                 "**High Risk:** You only have $timeGapInMinutes min to travel ${distanceInMeters}m. You will be late!"
-
-            // RULE 2: If total time takes > 70% of gap, medium risk.
             totalRequiredTime > (timeGapInMinutes * 0.7) ->
                 "**Heads Up:** You have $timeGapInMinutes min to travel ${distanceInMeters}m. You'll need to walk fast!"
-
-            // RULE 3: Otherwise, low risk.
             else ->
                 "Your schedule looks clear today! ✨ No back-to-back classes."
         }
     }
 
-    // *** 4. THIS IS THE NEW "PREDICTION" FUNCTION ***
-    // (This replaces your old, simple checkAndDisplaySmartAlert)
+    // *** THIS IS THE UPDATED UI FUNCTION ***
     private fun checkAndDisplaySmartAlert(schedule: List<TimetableEntry>) {
         var smartAlertMessage = "Your schedule looks clear today! ✨ No back-to-back classes."
 
-        // Loop through the schedule, stopping before the last class
         for (i in 0 until schedule.size - 1) {
             val currentClass = schedule[i]
             val nextClass = schedule[i + 1]
 
-            // 1. Feature Engineering: Parse the times
             val currentTimes = parseTimeSlot(currentClass.timeSlot)
             val nextTimes = parseTimeSlot(nextClass.timeSlot)
 
-            // If both times are valid, let's make a prediction
             if (currentTimes != null && nextTimes != null) {
-                // *** FIX: No more 'times' reference ***
                 val currentEndTime = currentTimes.second
                 val nextStartTime = nextTimes.first
-
-                // 2. Feature Engineering: Get the features
                 val timeGapInMinutes = nextStartTime - currentEndTime
                 val distanceInMeters = getDistance(currentClass.location, nextClass.location)
 
-                // 3. Run the "ML Model"
-                // We only care about immediate back-to-back classes (gap <= 15 min)
                 if (timeGapInMinutes <= 15) {
                     val prediction = getLatenessPrediction(timeGapInMinutes, distanceInMeters)
-
-                    // If the prediction is NOT the default "clear" message, use it
                     if (!prediction.startsWith("Your schedule")) {
                         smartAlertMessage = prediction
-                        break // We found the most important alert, so we can stop
+                        break
                     }
                 }
             }
         }
 
-        // 4. Display the result
         binding.aiAlertTextView.text = smartAlertMessage
 
-        // 5. Bonus: Change the card color based on risk
+        // *** UI FIX: Set TEXT color, not card color ***
         val colorRes = when {
-            smartAlertMessage.startsWith("**High Risk:**") -> R.color.warning
-            smartAlertMessage.startsWith("**Heads Up:**") -> R.color.primary_light
-            else -> android.R.color.white // Use a default white
+            smartAlertMessage.startsWith("**High Risk:**") -> R.color.error // This is a strong red
+            smartAlertMessage.startsWith("**Heads Up:**") -> R.color.primary_color // This is your app's blue
+            else -> R.color.text_secondary // This is a standard gray
         }
 
-        try {
-            binding.aiAlertCard.setCardBackgroundColor(ContextCompat.getColor(this, colorRes))
-        } catch (e: Exception) {
-            binding.aiAlertCard.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white))
-        }
+        binding.aiAlertTextView.setTextColor(ContextCompat.getColor(this, colorRes))
+        // Keep the card white
+        binding.aiAlertCard.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white))
     }
 
     private fun askNotificationPermission() {

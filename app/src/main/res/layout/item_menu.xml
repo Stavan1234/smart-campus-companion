@@ -28,7 +28,7 @@
             android:background="@drawable/icon_background"
             android:padding="8dp"
             app:tint="@color/primary_color"
-            tools:src="@drawable/fast_food"
+            tools:src="@drawable/ic_fast_food"
             android:contentDescription="Food item" />
         <!-- We use tools:src for the preview -->
         <!-- The real image will be set from CanteenMenuActivity.kt -->

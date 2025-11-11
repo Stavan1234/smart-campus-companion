@@ -18,7 +18,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- SECTION 1: HEADER -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -76,7 +75,6 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- SECTION 2: SMART CARDS -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,7 +116,9 @@
                     android:layout_height="150dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    app:cardCornerRadius="12dp">
+                    app:cardCornerRadius="12dp"
+                    app:strokeColor="@color/card_stroke"
+                    app:strokeWidth="1dp">
 
                     <TextView
                         android:id="@+id/aiAlertTextView"
@@ -126,17 +126,17 @@
                         android:layout_height="wrap_content"
                         android:text="AI Smart Alert"
                         android:layout_gravity="center"
+                        android:textAlignment="center"
                         android:padding="16dp"/>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- SECTION 3: SCHEDULE -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/timetableCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 android:clickable="true"
                 android:focusable="true">
 
@@ -183,7 +183,32 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- SECTION 4: CAMPUS UTILITIES -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Campus Events &amp; Notices"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/eventsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2"
+                tools:listitem="@layout/item_event_card"
+                tools:itemCount="4"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/viewAllEventsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="View All"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -191,7 +216,8 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/quickActionsCard"
@@ -211,7 +237,6 @@
                     android:paddingBottom="8dp"
                     android:gravity="center_vertical">
 
-                    <!-- Action 1: Timetable -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnActionTimetable"
                         android:layout_width="0dp"
@@ -223,20 +248,18 @@
                         style="@style/Widget.Material3.Button.TextButton"
                         android:textColor="@color/text_primary"/>
 
-                    <!-- Action 2: Canteen -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnActionCanteen"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Canteen"
-                        app:icon="@drawable/fast_food"
+                        app:icon="@drawable/ic_fast_food"
                         app:iconTint="@color/primary_color"
                         app:iconGravity="textTop"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:textColor="@color/text_primary"/>
 
-                    <!-- Action 3: Campus Map -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnActionMap"
                         android:layout_width="0dp"
@@ -248,7 +271,6 @@
                         style="@style/Widget.Material3.Button.TextButton"
                         android:textColor="@color/text_primary"/>
 
-                    <!-- Action 4: Chatbot -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnActionChatbot"
                         android:layout_width="0dp"
@@ -291,7 +313,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/fast_food"
+                            android:src="@drawable/ic_fast_food"
                             android:layout_marginEnd="12dp"
                             app:tint="@color/primary_color"
                             android:contentDescription="Canteen" />
@@ -323,34 +345,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- SECTION 5: EVENTS & SUPPORT -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Campus Events &amp; Support"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="8dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/eventsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
-                tools:listitem="@layout/item_event_card"
-                tools:itemCount="4"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/viewAllEventsButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="View All"
-                style="@style/Widget.MaterialComponents.Button.TextButton" />
-
-            <!-- This is your Contact & Support Card, now fixed and in a logical place -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/contactSupportCard"
                 android:layout_width="match_parent"
@@ -396,7 +390,6 @@
 
                     </LinearLayout>
 
-                    <!-- Contact Info -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
