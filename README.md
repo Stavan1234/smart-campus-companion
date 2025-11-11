@@ -36,7 +36,8 @@ The **Smart Campus Companion** connects everything. It's an intelligent helper t
 | ![Canteen](https://github.com/user-attachments/assets/c5b46b53-5b30-4c39-b4c7-89fd2f0bad20) | ![Events](https://github.com/user-attachments/assets/53c5ccda-bcc8-4f36-8344-fe66935ffe49) | ![Chatbot](https://github.com/user-attachments/assets/3036a214-e68a-4797-b5d0-e9b0b8a12076) |
 | **Interactive menu with ratings.** | **Real-time event updates.** | **Instant, on-device answers.** |
 
-*(Note: I left out the "Event Detail" screenshot to make the grid a perfect 3x2, which looks cleaner.)*
+![event_1](https://github.com/user-attachments/assets/4301f1c9-9979-46fd-8a0c-e6dd525aac57)
+
 
 ---
 
