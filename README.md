@@ -24,11 +24,17 @@ The **Smart Campus Companion** connects everything. It's an intelligent helper t
 ## 📸 App Gallery
 
 ![dashboard](https://github.com/user-attachments/assets/4c9ee876-7a3b-446a-8297-ea6941a46c50)
+
 ![dashboard 1](https://github.com/user-attachments/assets/c5b46b53-5b30-4c39-b4c7-89fd2f0bad20)
+
 ![events](https://github.com/user-attachments/assets/53c5ccda-bcc8-4f36-8344-fe66935ffe49)
+
 ![event_1](https://github.com/user-attachments/assets/a183b436-1a22-43ab-929f-1fd10db281e2)
+
 ![chatbot](https://github.com/user-attachments/assets/3036a214-e68a-4797-b5d0-e9b0b8a12076)
+
 ![timetable](https://github.com/user-attachments/assets/4f661b37-482c-4497-aec3-c075ff083f39)
+
 ![map](https://github.com/user-attachments/assets/88ba6a67-0a00-437b-9dde-0f4475acfde4)
 
 
